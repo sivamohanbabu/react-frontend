@@ -1,12 +1,40 @@
-import { Link } from "react-router-dom";
-import "./signup.css"; // Import the external CSS file for styling
+import { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import "./Signup.css";
 
 const Signup = () => {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await fetch("http://localhost:5000/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, password }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        alert("Signup successful");
+        navigate("/login"); // Navigate to the login page
+      } else {
+        setError(data.message || "Something went wrong");
+      }
+    } catch (err) {
+      setError("Failed to connect to the server");
+    }
+  };
+
   return (
     <div className="signup-container">
       <h1 className="signup-header">Signup</h1>
-      <form className="signup-form">
-        {/* Name Input */}
+      <form className="signup-form" onSubmit={handleSubmit}>
         <div className="input-group">
           <label htmlFor="name" className="input-label">
             Name:
@@ -17,10 +45,10 @@ const Signup = () => {
             name="name"
             placeholder="Enter your name"
             className="input-field"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
           />
         </div>
-
-        {/* Email Input */}
         <div className="input-group">
           <label htmlFor="email" className="input-label">
             Email:
@@ -31,10 +59,10 @@ const Signup = () => {
             name="email"
             placeholder="Enter your email"
             className="input-field"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
           />
         </div>
-
-        {/* Password Input */}
         <div className="input-group">
           <label htmlFor="password" className="input-label">
             Password:
@@ -45,16 +73,15 @@ const Signup = () => {
             name="password"
             placeholder="Enter your password"
             className="input-field"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
           />
         </div>
-
-        {/* Signup Button */}
+        {error && <p className="error-text">{error}</p>}
         <button type="submit" className="signup-button">
           Signup
         </button>
       </form>
-
-      {/* Login Link */}
       <p className="login-text">
         Already have an account?{" "}
         <Link to="/login" className="login-link">
